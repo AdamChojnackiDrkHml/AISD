@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 func insertSort(array *[]int, N int) {
@@ -26,7 +27,7 @@ func insertSort(array *[]int, N int) {
 		(*array)[j+1] = key
 
 		fmt.Fprintln(os.Stderr, "Total Comprasions: ", compCounter)
-		fmt.Fprintln(os.Stderr, "Total Swaps twoj stary: ", swapCounter)
+		fmt.Fprintln(os.Stderr, "Total Swaps: ", swapCounter)
 
 	}
 
@@ -36,8 +37,13 @@ func main() {
 
 	xd := []int{6, 75, 24, 86, 234, 7532, 78, 3}
 
+	start := time.Now()
 	insertSort(&xd, len(xd))
+	end := time.Now()
 
+	time := end.Sub(start)
+
+	fmt.Printf("%s\n", time)
 	for i := range xd {
 		fmt.Printf("%d ", xd[i])
 	}
