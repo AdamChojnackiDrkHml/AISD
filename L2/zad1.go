@@ -97,11 +97,12 @@ func mergeSort(arr []int) (sorted []int, swpCounter, cpCounter int) {
 		middle := length / 2
 
 		var swpAdd, cpAdd int
-		arr1, swpAdd, cpAdd := mergeSort(arr[0:middle])
+
+		arr1, swpAdd, cpAdd := mergeSort(arr[:middle])
 		swapCounter += swpAdd
 		compCounter += cpAdd
 
-		arr2, swpAdd, cpAdd := mergeSort(arr[middle+1 : length-1])
+		arr2, swpAdd, cpAdd := mergeSort(arr[middle:])
 		swapCounter += swpAdd
 		compCounter += cpAdd
 
@@ -144,11 +145,29 @@ func merge(arr1 []int, arr2 []int) (arr []int, swpCounter, cpCounter int) {
 		j++
 	}
 
+	k++
+
+	for i < length1 {
+		fmt.Fprintln(os.Stderr, "swap", arr1[i], "to ", k, "place")
+		swapCounter++
+		array[k] = arr1[i]
+		i++
+		k++
+	}
+
+	for j < length2 {
+		fmt.Fprintln(os.Stderr, "swap", arr2[j], "to ", k, "place")
+		swapCounter++
+		array[k] = arr2[j]
+		j++
+		k++
+	}
+
 	return array, swapCounter, compCounter
 }
 func main() {
 
-	xd := []int{2, 342, 2}
+	xd := []int{2, 8, 5, 2, 64, 12, 7, 86, 132, 8}
 
 	start := time.Now()
 	xd, swapCounter, compCounter := mergeSort(xd)
