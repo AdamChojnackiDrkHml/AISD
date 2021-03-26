@@ -26,7 +26,7 @@ func insertSort(array *[]int, N int) {
 		(*array)[j+1] = key
 
 		fmt.Fprintln(os.Stderr, "Total Comprasions: ", compCounter)
-		fmt.Fprintln(os.Stderr, "Total Swaps: ", swapCounter)
+		fmt.Fprintln(os.Stderr, "Total Swaps twoj stary: ", swapCounter)
 
 	}
 
