@@ -646,7 +646,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Total Comprasions: ", compCounter)
 		fmt.Fprintln(os.Stderr, "Total Swaps: ", swapCounter)
 
-		fmt.Println(swapCounter)
+		fmt.Fprintln(os.Stderr, "Total Time: ", timeStamp)
 		timeStamp += timeStamp
 		if comp {
 			for i := 1; i < len(toSort); i++ {
@@ -663,9 +663,9 @@ func main() {
 				}
 			}
 		}
-		/*	for _, n := range toSort {
+		for _, n := range toSort {
 			fmt.Printf("%d ", n)
-		} */
+		}
 	}
 
 }
