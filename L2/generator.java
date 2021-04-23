@@ -7,12 +7,14 @@ class generator
 		Random random = new Random();
 		try 
 		{
-			int n = Integer.parseInt(args[0]);
-			System.out.println(n);
-
-			for(int i=0;i<n;i++)
+			for(int i=0;i<21;i++)
 			{
-				System.out.println(random.nextInt() % n);
+				float dupa = random.nextFloat();
+				while (dupa < 0.81)
+				{
+					dupa = random.nextFloat();
+				}
+				System.out.printf(String.format("%.2f", dupa) + "\n");
 			}
 		}
 		catch (NumberFormatException ignore) {}
