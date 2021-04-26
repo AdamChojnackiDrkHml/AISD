@@ -181,6 +181,105 @@ func partition(arr *[]int, left int, right int, pivot int) (pivotIndex, swpCount
 
 }
 
+func DPQS(array *[]int, end int, begin int) (swpCounter, cpCounter int) {
+
+	if end <= begin {
+		return 0, 0
+	}
+	var p, q int
+
+	var swapCounter, compCounter int
+	var swpAdd, cpAdd int
+
+	if (*array)[begin] > (*array)[end] {
+		p, q = (*array)[end], (*array)[begin]
+	} else {
+		q, p = (*array)[end], (*array)[begin]
+	}
+	//	fmt.Fprintln(os.Stderr, "comp", (*array)[j], "to ", key)
+	compCounter++
+
+	i, k, d := begin+1, end-1, 0
+	j := i
+
+	for j <= k {
+
+		if d >= 0 {
+			//	fmt.Fprintln(os.Stderr, "comp", (*array)[j], "to ", p)
+			compCounter++
+			if (*array)[j] < p {
+				(*array)[j], (*array)[i] = (*array)[i], (*array)[j]
+				//	fmt.Fprintln(os.Stderr, "swap", (*array)[j], "to ", (*array)[i])
+				swapCounter++
+				i++
+				j++
+				d++
+			} else if (*array)[j] < q {
+				//	fmt.Fprintln(os.Stderr, "comp", (*array)[j], "to ", q)
+				compCounter++
+				j++
+			} else {
+				//	fmt.Fprintln(os.Stderr, "comp", (*array)[j], "to ", q)
+				compCounter++
+				(*array)[j], (*array)[k] = (*array)[k], (*array)[j]
+				//	fmt.Fprintln(os.Stderr, "swap", (*array)[j], "to ", (*array)[k])
+				swapCounter++
+				k--
+				d--
+			}
+
+		} else {
+			//	fmt.Fprintln(os.Stderr, "comp", (*array)[k], "to ", q)
+			compCounter++
+			if (*array)[k] > q {
+				k--
+				d--
+			} else if (*array)[k] < p {
+				//	fmt.Fprintln(os.Stderr, "comp", (*array)[k], "to ", p)
+				compCounter++
+				(*array)[k], (*array)[j], (*array)[i] = (*array)[j], (*array)[i], (*array)[k]
+				//	fmt.Fprintln(os.Stderr, "swap", (*array)[j], "to ", (*array)[k])
+				//	fmt.Fprintln(os.Stderr, "swap", (*array)[k], "to ", (*array)[i])
+				swapCounter++
+				swapCounter++
+				i++
+				d++
+				j++
+			} else {
+				//	fmt.Fprintln(os.Stderr, "comp", (*array)[k], "to ", p)
+				compCounter++
+				(*array)[j], (*array)[k] = (*array)[k], (*array)[j]
+				//	fmt.Fprintln(os.Stderr, "swap", (*array)[j], "to ", (*array)[k])
+				swapCounter++
+				j++
+			}
+
+		}
+	}
+	(*array)[begin], (*array)[i-1] = (*array)[i-1], p
+	(*array)[end], (*array)[k+1] = (*array)[k+1], q
+	//	fmt.Fprintln(os.Stderr, "swap", (*array)[begin], "to ", (*array)[i-1])
+	//	fmt.Fprintln(os.Stderr, "swap", (*array)[i-1], "to ", p
+	swapCounter += 2
+	//	fmt.Fprintln(os.Stderr, "swap", (*array)[end], "to ", (*array)[k+1])
+	//	fmt.Fprintln(os.Stderr, "swap", (*array)[k+1], "to ", q
+
+	swapCounter += 2
+
+	swpAdd, cpAdd = DPQS(array, i-2, begin)
+	swapCounter += swpAdd
+	compCounter += cpAdd
+	swpAdd, cpAdd = DPQS(array, k, i)
+	swapCounter += swpAdd
+	compCounter += cpAdd
+	swpAdd, cpAdd = DPQS(array, end, k+2)
+	swapCounter += swpAdd
+	compCounter += cpAdd
+
+	return swapCounter, compCounter
+
+}
+
 func main() {
 
 	argsWithoutProg := os.Args[1:]
