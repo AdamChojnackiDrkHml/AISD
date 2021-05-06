@@ -13,9 +13,9 @@ type tree interface {
 
 type BSTnode struct {
 	Value    string
-	LeftSon  *Node
-	RightSon *Node
-	Parent   *Node
+	LeftSon  *BSTnode
+	RightSon *BSTnode
+	Parent   *BSTnode
 }
 
 func (BSTnode) insert(Val string) {
