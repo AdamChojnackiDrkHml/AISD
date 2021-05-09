@@ -15,7 +15,10 @@ public class BST implements TreeI{
     @Override
     public boolean insert(String NewValue) 
     {
-        if()
+        if(NewValue.compareTo(this.Value) == 0) 
+        {
+            
+        }
         return false;
     }
 
