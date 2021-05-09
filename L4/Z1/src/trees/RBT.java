@@ -1,18 +1,21 @@
 package trees;
 
-import java.io.File; 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner; 
+import java.util.Scanner;
 
-public class BST{
+public class RBT {
 
-
-
+    public enum Color {
+        RED,
+        BLACK;
+    }
     public class Node
     {
         public Node LeftSon;
         public Node RightSon;
         public Node Parent;
+        public Color color; 
         public int count;
         private String Value;
 
@@ -20,6 +23,7 @@ public class BST{
         {
             this.Value = Value;
             count = 1;
+            color = Color.RED;
         }
     }
 
@@ -32,6 +36,7 @@ public class BST{
         if(Root == null)
         {
             Root = new Node(NewValue);
+            Root.color = Color.BLACK;
             return;
         }
 
@@ -50,9 +55,6 @@ public class BST{
             if(Current.Value.compareTo(NewValue) < 0)
             {
                 Current = Current.RightSon;
-                
-
-
             }
             else 
             {
@@ -64,19 +66,77 @@ public class BST{
             }
         }
         Current = new Node(NewValue);
-        
+        Current.Parent = Parent;
         if(isLeft)
         {
-            Current.Parent = Parent;
             Parent.LeftSon = Current;
-            return;
         }
-        Current.Parent = Parent;
-        Parent.RightSon = Current;
+        if(!isLeft)
+        {
+            Parent.RightSon = Current;
+        }
+
+
+        try {
+            repair(Current);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
 
     }
 
+    public void repair(Node N) throws Exception
+    {
+        if(!isRed(N.Parent))
+        {
+            return;
+        }
 
+        if(brother(N) != null && isRed(brother(N)))
+        {
+            N.Parent.color = Color.BLACK;
+            brother(N).color = Color.BLACK;
+
+            if(N.Parent.Parent != null && N.Parent.Parent != Root)
+            {
+                N.Parent.Parent.color = Color.RED;
+            }
+            return;
+        }
+
+        if(N.Parent.Parent.RightSon == N.Parent && N.Parent.RightSon == N)
+        {
+            
+        }
+
+    }
+
+    public boolean isRed(Node N) throws Exception
+    {
+        if(N != null)
+        {
+            return N.color == Color.RED;
+        }
+        throw new Exception("YOU VIOLATED THE LAW");
+    }
+    public Node brother(Node N)
+    {
+        if(N != null && N.Parent != null)
+        {
+            if(N == N.Parent.LeftSon && N.Parent.RightSon != null)
+            {
+                return N.Parent.RightSon;
+            }
+            if(N == N.Parent.RightSon && N.Parent.LeftSon != null)
+            {
+                return N.Parent.LeftSon;
+            }
+        }
+        return null;
+    }
     public void load(String uri) 
     {
         try 
@@ -303,5 +363,4 @@ public class BST{
         System.out.print("]");
 
     }
-    
 }
