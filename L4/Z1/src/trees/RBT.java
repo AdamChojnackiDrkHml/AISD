@@ -67,6 +67,8 @@ public class RBT {
         }
         Current = new Node(NewValue);
         Current.Parent = Parent;
+        Current.LeftSon = null;
+        Current.RightSon = null;
         if(isLeft)
         {
             Parent.LeftSon = Current;
@@ -77,51 +79,154 @@ public class RBT {
         }
 
 
-        try {
+        
             repair(Current);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+     
 
 
     }
 
-    public void repair(Node N) throws Exception
+    public void repair(Node N)
     {
+        if(N.equals(null))
+        {
+            return;
+        }
+
+        if(N.equals(Root) )
+        {
+            N.color = Color.BLACK;
+        }
+
         if(!isRed(N.Parent))
         {
             return;
         }
 
-        if(brother(N) != null && isRed(brother(N)))
+
+        if(isRed(N.Parent) && isRed(brother(N.Parent)))
         {
             N.Parent.color = Color.BLACK;
-            brother(N).color = Color.BLACK;
-
-            if(N.Parent.Parent != null && N.Parent.Parent != Root)
-            {
-                N.Parent.Parent.color = Color.RED;
-            }
+            brother(N.Parent).color = Color.BLACK;
+            N.Parent.Parent.color = Color.RED;
+            repair(N.Parent.Parent);
             return;
         }
 
-        if(N.Parent.Parent.RightSon == N.Parent && N.Parent.RightSon == N)
+        if(isRed(N.Parent) && !isRed(brother(N.Parent)))
         {
-            
+            if(N.Parent.equals(N.Parent.Parent.LeftSon)) 
+            {
+                if(N.equals(N.Parent.LeftSon))
+                {
+                    RotateLL(N);
+                }
+                else
+                {
+                    RotateRL(N);
+                }
+            }
+            else
+            {
+                if(N.equals(N.Parent.LeftSon)) 
+                {
+                    RotateLR(N);
+                } 
+                else
+                {
+                    RotateRR(N);
+                }
+            }
         }
+
 
     }
 
-    public boolean isRed(Node N) throws Exception
+    private void RotateL(Node N)
+    {
+        if(isLeftSon(N))
+        {
+            N.Parent.LeftSon = N.RightSon;
+            N.RightSon.Parent = N.Parent;
+
+            N.RightSon = N.RightSon.LeftSon;
+            N.RightSon.Parent = N;
+
+            N.Parent.LeftSon.LeftSon = N;
+            N.Parent = N.Parent.LeftSon;
+        }
+        else 
+        {
+            N.Parent.RightSon = N.RightSon;
+            N.RightSon.Parent = N.Parent;
+
+            N.RightSon = N.RightSon.LeftSon;
+            N.RightSon.Parent = N;
+
+            N.Parent.RightSon.LeftSon = N;
+            N.Parent = N.Parent.RightSon;
+        }
+    }
+    private void RotateR(Node N)
+    {
+        if(isLeftSon(N))
+        {
+            N.Parent.LeftSon = N.LeftSon;
+            N.LeftSon.Parent = N.Parent;
+
+            N.LeftSon = N.LeftSon.RightSon;
+            N.LeftSon.Parent = N;
+
+            N.Parent.LeftSon.RightSon = N;
+            N.Parent = N.Parent.LeftSon;
+        }
+        else 
+        {
+            N.Parent.RightSon = N.LeftSon;
+            N.LeftSon.Parent = N.Parent;
+
+            N.LeftSon = N.LeftSon.RightSon;
+            N.LeftSon.Parent = N;
+
+            N.Parent.RightSon.RightSon = N;
+            N.Parent = N.Parent.LeftSon;
+        }
+    }
+    private void RotateLL(Node N)
+    {
+        RotateR(N.Parent.Parent);
+        N.Parent.color = Color.BLACK;
+        brother(N).color = Color.RED;
+    }
+    private void RotateRL(Node N)
+    {
+        RotateR(N.Parent);
+        RotateRR(N);
+    }
+    private void RotateLR(Node N)
+    {
+        RotateL(N.Parent);
+        RotateLL(N);
+    }
+    private void RotateRR(Node N)
+    {
+        RotateL(N.Parent.Parent);
+        N.Parent.color = Color.BLACK;
+        brother(N).color = Color.RED;
+
+    }
+
+    public boolean isRed(Node N)
     {
         if(N != null)
         {
             return N.color == Color.RED;
         }
-        throw new Exception("YOU VIOLATED THE LAW");
+        return false;
     }
+    
+    
+    
     public Node brother(Node N)
     {
         if(N != null && N.Parent != null)
@@ -136,6 +241,11 @@ public class RBT {
             }
         }
         return null;
+    }
+    
+    public boolean isLeftSon(Node N)
+    {
+        return N.equals(N.Parent.LeftSon);
     }
     public void load(String uri) 
     {
@@ -358,7 +468,7 @@ public class RBT {
         }
         System.out.print("[");
         inorder(N.LeftSon);
-        System.out.print(N.Value + "(" + N.count +")");
+        System.out.print(N.Value + "(" + N.color +")");
         inorder(N.RightSon);
         System.out.print("]");
 
