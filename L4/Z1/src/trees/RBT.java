@@ -10,6 +10,8 @@ public class RBT {
         RED,
         BLACK;
     }
+
+
     public class Node
     {
         public Node LeftSon;
@@ -18,6 +20,7 @@ public class RBT {
         public Color color; 
         public int count;
         private String Value;
+        public boolean isNull;
 
         public Node(String Value)
         {
@@ -25,11 +28,23 @@ public class RBT {
             count = 1;
             color = Color.RED;
         }
+
+        public Node()
+        {
+            isNull = true;
+            color = Color.BLACK;
+            LeftSon = this;
+            RightSon = this;
+        }
     }
+
+
 
     
     Node Root;
 
+    Node NullNode = new Node();
+    
 
     public void insert(String NewValue) 
     {
@@ -37,13 +52,15 @@ public class RBT {
         {
             Root = new Node(NewValue);
             Root.color = Color.BLACK;
+            createBond(Root, NullNode, true);
+            createBond(Root, NullNode, false);
             return;
         }
 
         Node Current = Root;
         Node Parent = Current;
         boolean isLeft = false;
-        while(Current != null)
+        while(!Current.isNull)
         {
             Parent = Current;
             if(Current.Value.compareTo(NewValue) == 0)
@@ -55,40 +72,37 @@ public class RBT {
             if(Current.Value.compareTo(NewValue) < 0)
             {
                 Current = Current.RightSon;
+                if(Current.isNull)
+                {
+                    isLeft = false;
+                }
             }
             else 
             {
                 Current = Current.LeftSon;
-                if(Current == null)
+                if(Current.isNull)
                 {
                     isLeft = true;
                 }
             }
         }
         Current = new Node(NewValue);
-        Current.Parent = Parent;
-        Current.LeftSon = null;
-        Current.RightSon = null;
-        if(isLeft)
-        {
-            Parent.LeftSon = Current;
-        }
-        if(!isLeft)
-        {
-            Parent.RightSon = Current;
-        }
+
+
+        createBond(Current, NullNode, true);
+        createBond(Current, NullNode, false);
+
+        createBond(Parent, Current, isLeft);
 
 
         
-            repair(Current);
+        repair(Current);
      
-
-
     }
 
     public void repair(Node N)
     {
-        if(N.equals(null))
+        if(null == N)
         {
             return;
         }
@@ -96,6 +110,7 @@ public class RBT {
         if(N.equals(Root) )
         {
             N.color = Color.BLACK;
+            return;
         }
 
         if(!isRed(N.Parent))
@@ -109,8 +124,7 @@ public class RBT {
             N.Parent.color = Color.BLACK;
             brother(N.Parent).color = Color.BLACK;
             N.Parent.Parent.color = Color.RED;
-            repair(N.Parent.Parent);
-            return;
+            
         }
 
         if(isRed(N.Parent) && !isRed(brother(N.Parent)))
@@ -138,58 +152,62 @@ public class RBT {
                 }
             }
         }
-
+        repair(N.Parent.Parent);
 
     }
 
     private void RotateL(Node N)
     {
-        if(isLeftSon(N))
-        {
-            N.Parent.LeftSon = N.RightSon;
-            N.RightSon.Parent = N.Parent;
+        if(!N.equals(Root)) {
+            if(isLeftSon(N))
+            {
+                createBond(N.Parent, N.RightSon, true);
+                createBond(N, N.RightSon.LeftSon, false);
+                createBond(N.Parent.LeftSon, N, true);
 
-            N.RightSon = N.RightSon.LeftSon;
-            N.RightSon.Parent = N;
-
-            N.Parent.LeftSon.LeftSon = N;
-            N.Parent = N.Parent.LeftSon;
+            }
+            else 
+            {
+                createBond(N.Parent, N.RightSon, false);
+                createBond(N, N.RightSon.LeftSon, false);
+                createBond(N.Parent.RightSon, N, true);
+            }
         }
-        else 
-        {
-            N.Parent.RightSon = N.RightSon;
-            N.RightSon.Parent = N.Parent;
+        else {
 
-            N.RightSon = N.RightSon.LeftSon;
-            N.RightSon.Parent = N;
+            Root = N.RightSon;
+            Root.Parent = null;
 
-            N.Parent.RightSon.LeftSon = N;
-            N.Parent = N.Parent.RightSon;
+            createBond(N, Root.LeftSon, false);
+            createBond(Root, N, true);
+
+
         }
     }
     private void RotateR(Node N)
-    {
-        if(isLeftSon(N))
-        {
-            N.Parent.LeftSon = N.LeftSon;
-            N.LeftSon.Parent = N.Parent;
+    {   
+        if(!N.equals(Root)) {
+            if(isLeftSon(N))
+            {
+                createBond(N.Parent, N.LeftSon, true);
+                createBond(N, N.LeftSon.RightSon, true);
+                createBond(N.Parent.LeftSon, N, false);
 
-            N.LeftSon = N.LeftSon.RightSon;
-            N.LeftSon.Parent = N;
-
-            N.Parent.LeftSon.RightSon = N;
-            N.Parent = N.Parent.LeftSon;
+            }
+            else 
+            {
+                createBond(N.Parent, N.LeftSon, false);
+                createBond(N, N.LeftSon.RightSon, true);
+                createBond(N.Parent.RightSon, N, false);
+            }
         }
-        else 
-        {
-            N.Parent.RightSon = N.LeftSon;
-            N.LeftSon.Parent = N.Parent;
+        else {
+            Root = N.LeftSon;
+            Root.Parent = null;
 
-            N.LeftSon = N.LeftSon.RightSon;
-            N.LeftSon.Parent = N;
+            createBond(N, Root.RightSon, true);
+            createBond(Root, N, false);
 
-            N.Parent.RightSon.RightSon = N;
-            N.Parent = N.Parent.LeftSon;
         }
     }
     private void RotateLL(Node N)
@@ -213,34 +231,24 @@ public class RBT {
         RotateL(N.Parent.Parent);
         N.Parent.color = Color.BLACK;
         brother(N).color = Color.RED;
-
     }
 
     public boolean isRed(Node N)
     {
-        if(N != null)
-        {
-            return N.color == Color.RED;
-        }
-        return false;
+        return N.color.equals(Color.RED);
     }
     
     
     
     public Node brother(Node N)
     {
-        if(N != null && N.Parent != null)
-        {
-            if(N == N.Parent.LeftSon && N.Parent.RightSon != null)
-            {
-                return N.Parent.RightSon;
-            }
-            if(N == N.Parent.RightSon && N.Parent.LeftSon != null)
-            {
-                return N.Parent.LeftSon;
-            }
-        }
-        return null;
+
+       if(N.equals(N.Parent.LeftSon))
+       {
+           return N.Parent.RightSon;
+       }
+       return N.Parent.LeftSon;
+
     }
     
     public boolean isLeftSon(Node N)
@@ -461,7 +469,7 @@ public class RBT {
     }
     public void inorder(Node N)
     {
-        if(N == null)
+        if(N.isNull)
         {
  //           System.out.println();
             return;
@@ -472,5 +480,19 @@ public class RBT {
         inorder(N.RightSon);
         System.out.print("]");
 
+    }
+
+
+    private void createBond(Node P, Node C, boolean isLeft)
+    {
+        if(isLeft)
+        {
+            P.LeftSon = C;
+        }
+        else
+        {
+            P.RightSon = C;
+        }
+        C.Parent = P;
     }
 }
