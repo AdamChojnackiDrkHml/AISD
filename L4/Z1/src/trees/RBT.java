@@ -96,11 +96,11 @@ public class RBT {
 
 
         
-        repair(Current);
+        repairInsert(Current);
      
     }
 
-    public void repair(Node N)
+    public void repairInsert(Node N)
     {
         if(null == N)
         {
@@ -137,14 +137,14 @@ public class RBT {
                 }
                 else
                 {
-                    RotateRL(N);
+                    RotateLR(N);
                 }
             }
             else
             {
                 if(N.equals(N.Parent.LeftSon)) 
                 {
-                    RotateLR(N);
+                    RotateRL(N);
                 } 
                 else
                 {
@@ -152,7 +152,13 @@ public class RBT {
                 }
             }
         }
-        repair(N.Parent.Parent);
+        try {
+        repairInsert(N.Parent.Parent);
+        }
+        catch (NullPointerException e)
+        {
+            return;
+        }
 
     }
 
@@ -219,12 +225,12 @@ public class RBT {
     private void RotateRL(Node N)
     {
         RotateR(N.Parent);
-        RotateRR(N);
+        RotateRR(N.RightSon);
     }
     private void RotateLR(Node N)
     {
         RotateL(N.Parent);
-        RotateLL(N);
+        RotateLL(N.LeftSon);
     }
     private void RotateRR(Node N)
     {
@@ -236,9 +242,7 @@ public class RBT {
     public boolean isRed(Node N)
     {
         return N.color.equals(Color.RED);
-    }
-    
-    
+    }  
     
     public Node brother(Node N)
     {
@@ -262,7 +266,7 @@ public class RBT {
             File myObj = new File(uri);
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) 
-            {
+            {   
                 String data = myReader.nextLine();
                 char[] data1 = data.toCharArray();
                 for (int i = 0; i < data1.length; i++){
@@ -291,79 +295,179 @@ public class RBT {
         }
     }
 
+    public void loadDelete(String uri) 
+    {
+        try 
+        {
+            File myObj = new File(uri);
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) 
+            {   
+                String data = myReader.nextLine();
+                char[] data1 = data.toCharArray();
+                for (int i = 0; i < data1.length; i++){
+                    if(!Character.isLetter(data1[i]))
+                    {
+                        data1[i] = ' ';
+                    }
+                }
+                data = String.valueOf(data1);
+                String[] words = data.split(" ");
+
+                for(String word : words)
+                {
+                    if(!word.equals(""))
+                    {
+
+                            delete(word);
+                    }
+                }
+            }
+            myReader.close();
+          } 
+        catch (FileNotFoundException e) 
+        {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    private void rbTransplant(Node u, Node v) {
+        if (u.Parent == null) {
+          Root = v;
+        } else if (u == u.Parent.LeftSon) {
+          u.Parent.LeftSon = v;
+        } else {
+          u.Parent.RightSon = v;
+        }
+        v.Parent = u.Parent;
+      }
 
     public void delete(String value)
     {
+        
         Node K = find(value);
-
-        if(K.LeftSon == null && K.RightSon == null)
+        if(K.isNull)
         {
-            if(K == K.Parent.LeftSon)
-            {
-                K.Parent.LeftSon = null;
-                return;
-            }
-            
-            if(K == K.Parent.RightSon)
-            {
-                K.Parent.RightSon = null;
-            }
+            return;
         }
-
-        if(K.LeftSon == null && K.RightSon != null)
+        Node X,Y;
+        Y = K;
+        Color originalColor = K.color;
+        if(K.LeftSon.isNull)
         {
-            if(K == Root)
-            {
-                Root = K.RightSon;
-                return;
-            }
-            
-            if(K == K.Parent.LeftSon)
-            {
-                K.Parent.LeftSon = K.RightSon;
-                return;
-            }
-            
-            if(K == K.Parent.RightSon)
-            {
-                K.Parent.RightSon = K.RightSon;
-                return;
-            }
+            X = K.RightSon;
+            rbTransplant(K, K.RightSon);
         }
-
-        if (K.LeftSon != null && K.RightSon == null)
+        else if(K.RightSon.isNull)
         {
-            if(K == Root)
+            X = K.LeftSon;
+            rbTransplant(K,K.LeftSon);
+        }
+        else
+        {
+            Y = min(K.RightSon);
+            originalColor = Y.color;
+            X = Y.RightSon;
+
+            if(Y.Parent.equals(K))
             {
-                Root = K.LeftSon;
-                return;
+                X.Parent = Y;
+            }
+            else
+            {
+                rbTransplant(Y, Y.RightSon);
+                createBond(Y, K.RightSon, false);
             }
             
-            if(K == K.Parent.LeftSon)
-            {
-                K.Parent.LeftSon = K.LeftSon;
-                return;
-            }
+            rbTransplant(K, Y);
+            createBond(Y, K.LeftSon, true);
+            Y.color = K.color;
+
             
-            if(K == K.Parent.RightSon)
-            {
-                K.Parent.RightSon = K.LeftSon;
-                return;
-            }
         }
         
-        if(K.LeftSon != null && K.RightSon != null)
+        if(originalColor.equals(Color.BLACK))
         {
-            Node suc = successor(value);
-
-            delete(suc.Value);
-
-            K.Value = suc.Value;
-            K.count = suc.count;
+            repairDelete(X);
         }
     }
 
 
+    private void repairDelete(Node X)
+    {
+        Node s;
+        while (X != Root && X.color.equals(Color.BLACK)) 
+        {
+          if (X.equals(X.Parent.LeftSon)) 
+          {
+            s = X.Parent.RightSon;
+            if (s.color.equals(Color.RED)) 
+            {
+              s.color = Color.BLACK;
+              X.Parent.color = Color.RED;
+              RotateL(X.Parent);
+              s = X.Parent.RightSon;
+            }
+    
+            if (s.LeftSon.color.equals(Color.BLACK) && s.RightSon.color.equals(Color.BLACK)) 
+            {
+              s.color = Color.RED;
+              X = X.Parent;
+            } 
+            else 
+            {
+              if (s.RightSon.color.equals(Color.BLACK)) 
+              {
+                s.LeftSon.color = Color.BLACK;
+                s.color = Color.RED;
+                RotateR(s);
+                s = X.Parent.RightSon;
+              }
+    
+              s.color = X.Parent.color;
+              X.Parent.color = Color.BLACK;
+              s.RightSon.color = Color.BLACK;
+              RotateL(X.Parent);
+              X = Root;
+            }
+          } 
+          else 
+          {
+            s = X.Parent.LeftSon;
+            if (s.color.equals(Color.RED)) 
+            {
+              s.color = Color.BLACK;
+              X.Parent.color = Color.RED;
+              RotateR(X.Parent);
+              s = X.Parent.LeftSon;
+            }
+    
+            if (s.RightSon.color.equals(Color.BLACK) && s.LeftSon.color.equals(Color.BLACK)) 
+            {
+              s.color = Color.RED;
+              X = X.Parent;
+            } 
+            else 
+            {
+              if (s.LeftSon.color.equals(Color.BLACK)) 
+              {
+                s.RightSon.color = Color.BLACK;
+                s.color = Color.RED;
+                RotateL(s);
+                s = X.Parent.LeftSon;
+              }
+    
+              s.color = X.Parent.color;
+              X.Parent.color = Color.BLACK;
+              s.LeftSon.color = Color.BLACK;
+              RotateR(X.Parent);
+              X = Root;
+            }
+          }
+        }
+        X.color = Color.BLACK;
+    }
     public Node find(String value) 
     {
         if(Root == null)
@@ -373,8 +477,7 @@ public class RBT {
         }
 
         Node Current = Root;
-        boolean isFound = false;
-        while(Current != null)
+        while(!Current.isNull)
         {
             if(Current.Value.compareTo(value) < 0)
             {
@@ -386,12 +489,10 @@ public class RBT {
             }
             else 
             {
-                isFound = true;
                 break;
             }
         }
 
-        System.out.println(isFound ? 1 : 0);
         return Current;
 
     }
@@ -399,7 +500,7 @@ public class RBT {
 
     public Node min(Node N) 
     {
-        if(N == null)
+        if(N.isNull)
         {
             System.out.println();
             return null;
@@ -407,12 +508,12 @@ public class RBT {
 
         Node Min = N;
 
-        while(Min.LeftSon != null)
+        while(!Min.LeftSon.isNull)
         {
             Min = Min.LeftSon;
         }
 
-        System.out.println(Min.Value);
+       // System.out.println(Min.Value);
         return Min;
 
     }
@@ -420,7 +521,7 @@ public class RBT {
 
     public Node max(Node N) 
     {
-        if(N == null)
+        if(N.isNull)
         {
             System.out.println();
             return null;
@@ -428,12 +529,12 @@ public class RBT {
 
         Node Max = N;
 
-        while(Max.RightSon != null)
+        while(!Max.RightSon.isNull)
         {
             Max = Max.RightSon;
         }
 
-        System.out.println(Max.Value);
+       // System.out.println(Max.Value);
         return Max;
     }
 
@@ -474,11 +575,9 @@ public class RBT {
  //           System.out.println();
             return;
         }
-        System.out.print("[");
         inorder(N.LeftSon);
-        System.out.print(N.Value + "(" + N.color +")");
+        System.out.print(N.Value + "(" + N.color +") ");
         inorder(N.RightSon);
-        System.out.print("]");
 
     }
 
