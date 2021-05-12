@@ -2,11 +2,14 @@ package trees;
 
 import java.io.File; 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner; 
 
 public class BST{
 
 
+    public long comp;
 
     public class Node
     {
@@ -77,8 +80,9 @@ public class BST{
     }
 
 
-    public void load(String uri) 
+    public List<String> load(String uri) 
     {
+        List<String> list = new ArrayList<String>();
         try 
         {
             File myObj = new File(uri);
@@ -101,6 +105,7 @@ public class BST{
                     if(!word.equals(""))
                     {
                         insert(word);
+                        list.add(word);
                     }
                 }
             }
@@ -111,6 +116,7 @@ public class BST{
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        return list;
     }
 
 
@@ -188,9 +194,10 @@ public class BST{
 
     public Node find(String value) 
     {
+        comp = 0;
         if(Root == null)
         {
-            System.err.println();
+            System.err.println(0);
             return null;
         }
 
@@ -198,6 +205,7 @@ public class BST{
         boolean isFound = false;
         while(Current != null)
         {
+            comp++;
             if(Current.Value.compareTo(value) < 0)
             {
                 Current = Current.RightSon;
@@ -260,6 +268,7 @@ public class BST{
     }
 
 
+    
     public Node successor(String value) 
     {
         Node K = find(value);
@@ -281,26 +290,29 @@ public class BST{
             K = Current;
             Current = Current.Parent;
         }
-        
+        System.out.println(Current.Value);
         return Current;
     }
 
     public void inorder()
     {
-        inorder(Root);
+        if(Root != null)
+        {
+            inorder(Root);
+            return;
+        }
+        System.out.println();
     }
     public void inorder(Node N)
     {
         if(N == null)
         {
- //           System.out.println();
+            System.out.print("");
             return;
         }
-        System.out.print("[");
         inorder(N.LeftSon);
-        System.out.print(N.Value + "(" + N.count +")");
+        System.out.print(N.Value + " ");
         inorder(N.RightSon);
-        System.out.print("]");
 
     }
     

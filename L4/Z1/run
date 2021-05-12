@@ -1,4 +1,4 @@
 #!/bin/bash
 
 javac -d ./out/production/Z1  src/trees/*.java
-java -classpath ./out/production/Z1 trees.Zad1
+java  -classpath ./out/production/Z1 trees.Zad1 --type bst

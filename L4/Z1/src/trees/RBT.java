@@ -11,7 +11,7 @@ public class RBT {
         BLACK;
     }
 
-
+    public long comp;
     public class Node
     {
         public Node LeftSon;
@@ -470,15 +470,19 @@ public class RBT {
     }
     public Node find(String value) 
     {
+
+        comp = 0;
         if(Root == null)
         {
-            System.err.println();
+            System.err.println(0);
             return null;
         }
 
         Node Current = Root;
+        boolean isFound = false;
         while(!Current.isNull)
         {
+            comp++;
             if(Current.Value.compareTo(value) < 0)
             {
                 Current = Current.RightSon;
@@ -489,9 +493,11 @@ public class RBT {
             }
             else 
             {
+                isFound = true;
                 break;
             }
         }
+        System.out.println(isFound ? 1 : 0);
 
         return Current;
 
@@ -513,7 +519,7 @@ public class RBT {
             Min = Min.LeftSon;
         }
 
-       // System.out.println(Min.Value);
+        System.out.println(Min.Value);
         return Min;
 
     }
@@ -534,7 +540,7 @@ public class RBT {
             Max = Max.RightSon;
         }
 
-       // System.out.println(Max.Value);
+        System.out.println(Max.Value);
         return Max;
     }
 
@@ -548,19 +554,19 @@ public class RBT {
             return null;
         }
 
-        if(K.RightSon != null) 
+        if(K.RightSon.isNull) 
         {
             return min(K.RightSon);
         }
 
         Node Current = K.Parent;
-
+        
         while ((Current != null) && K == Current.RightSon)
         {
             K = Current;
             Current = Current.Parent;
         }
-        
+        System.out.println(Current.Value);
         return Current;
     }
 
@@ -572,7 +578,7 @@ public class RBT {
     {
         if(N.isNull)
         {
- //           System.out.println();
+            System.out.println();
             return;
         }
         inorder(N.LeftSon);
